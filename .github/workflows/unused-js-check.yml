@@ -1,0 +1,38 @@
+name: Unused JS Analysis with OpenAI and Slack
+
+on:
+  schedule:
+    # 매일 아침 9시 (KST 기준 00:00 UTC) 실행 예시
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 수동 별도 실행
+
+jobs:
+  analyze-and-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 코드 체크아웃
+        uses: actions/checkout@v3
+
+      - name: 🟢 Node.js 20 셋업
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 📁 패키지 설치
+        run: npm install
+
+      - name: 🎭 Playwright 브라우저 설치
+        run: npx playwright install --with-deps chromium
+
+      - name: 🚀 1단계 - JS 커버리지 측정 (E2E)
+        run: npx playwright test tests/full-flow-coverage.spec.ts --project=chromium
+
+      - name: 🤖 2단계 - OpenAI 미사용 분석
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: npx ts-node analyze-js.ts
+
+      - name: 💬 3단계 - Slack 결과 전송
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: npx ts-node send-slack.ts
