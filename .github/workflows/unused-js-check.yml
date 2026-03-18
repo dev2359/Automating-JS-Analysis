@@ -30,9 +30,9 @@ jobs:
       - name: 🤖 2단계 - OpenAI 미사용 분석
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: npx ts-node analyze-js.ts
+        run: node analyze-js.js
 
       - name: 💬 3단계 - Slack 결과 전송
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: npx ts-node send-slack.ts
+        run: node send-slack.js

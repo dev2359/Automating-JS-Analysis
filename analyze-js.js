@@ -18,10 +18,10 @@ async function analyzeUnusedJS() {
 
     // AI에게 보낼 데이터가 너무 클 수 있으므로, 사용 안 된 비율이 높은 상위 파일들만 추려서 요약
     const filteredData = coverageData
-      .filter((d: any) => d.unusedBytes > 0)
-      .sort((a: any, b: any) => b.unusedBytes - a.unusedBytes)
+      .filter(d => d.unusedBytes > 0)
+      .sort((a, b) => b.unusedBytes - a.unusedBytes)
       .slice(0, 15) // 상위 15개 스크립트만
-      .map((d: any) => ({
+      .map(d => ({
         url: d.url.split('?')[0], // 쿼리스트링 제거하여 간소화
         totalBytes: d.totalBytes,
         unusedBytes: d.unusedBytes,
