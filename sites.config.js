@@ -26,6 +26,7 @@ module.exports = [
       // 주문하기 버튼 (장바구니 페이지)
       orderButton: 'text="전체상품주문", text="주문하기", a:has-text("주문하기")',
     },
+    searchKeyword: '에센스',
   },
   {
     id: 'celladix',
@@ -40,6 +41,8 @@ module.exports = [
       basketUrl: 'https://celladix.co.kr/order/basket.html',
       orderButton: 'text="전체상품주문", text="주문하기", a:has-text("주문하기")',
     },
+    // 셀라딕스 메인 추천 검색어 (page snapshot 기준)
+    searchKeyword: '콜라겐',
   },
   {
     id: 'wellit',
@@ -52,5 +55,7 @@ module.exports = [
       basketUrl: 'https://wellit.co.kr/order/basket.html',
       orderButton: 'text="전체상품주문", text="주문하기", a:has-text("주문하기")',
     },
+    // 웰릿 메인 추천 검색어 (page snapshot 기준)
+    searchKeyword: '콜라겐',
   },
 ];
