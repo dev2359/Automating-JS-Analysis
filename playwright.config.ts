@@ -13,9 +13,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  /* 구매 여정 전체(메인→카테고리→상세→옵션→장바구니→주문)는 사이트 응답 지연이 누적되므로
-     기본 30초보다 넉넉히 잡는다 */
-  timeout: 90_000,
+  /* 구매 여정 전체(메인→카테고리→상세→장바구니→주문)는 사이트 응답 지연 + 1차/2차 시도가
+     누적되므로 기본 30초보다 넉넉히 잡는다 */
+  timeout: 120_000,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

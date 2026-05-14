@@ -108,21 +108,23 @@ for (const site of sites) {
 
     await test.step('3. 상품 상세 진입', async () => {
       const productLink = page.locator(site.selectors.productLink).first();
+      // cafe24 메인/리스트 페이지의 상품 anchor 는 캐러셀·슬라이더 안에서 첫 슬라이드
+      // 외엔 display:none/visibility:hidden 으로 시작하는 경우가 많아 'visible' 대신
+      // 'attached' (DOM 존재) 로 확인하고 force click 한다.
       try {
-        await productLink.waitFor({ state: 'visible', timeout: 25000 });
+        await productLink.waitFor({ state: 'attached', timeout: 15000 });
       } catch {
-        // 카테고리/list 페이지에서 상품 링크 못 찾으면 메인 페이지로 돌아가서 재시도.
-        // bot 감지로 카테고리가 비어 보이거나 인터스티셜이 뜨는 케이스 방어.
+        // list 페이지에서 못 찾으면 메인 페이지에서 재시도 (BEST/NEW 섹션)
         console.log(`[${site.id}] list 페이지에서 상품 못 찾음, 메인 페이지에서 fallback 시도`);
         await page.goto(site.baseUrl);
         await page.waitForLoadState('domcontentloaded');
         await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-        await page.waitForTimeout(1000);
-        await productLink.waitFor({ state: 'visible', timeout: 25000 });
+        await page.waitForTimeout(1500);
+        await productLink.waitFor({ state: 'attached', timeout: 30000 });
       }
-      await productLink.click();
+      await productLink.scrollIntoViewIfNeeded().catch(() => {});
+      await productLink.click({ force: true });
       await expect(page.locator('body')).toBeVisible();
-      // 상세 페이지의 동적 로드 자극을 위해 짧게 스크롤
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await page.waitForTimeout(500);
     });
