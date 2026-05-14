@@ -13,7 +13,7 @@ test('메디온 일반 소비자 통합 여정 및 JS 커버리지 추출', asyn
   });
 
   await test.step('2. 카테고리 이동', async () => {
-    await page.getByRole('link', { name: '전제품' }).click();
+    await page.getByRole('link', { name: '전제품', exact: true }).click();
   });
 
   await test.step('3. 상품 상세 진입 및 옵션 선택', async () => {
