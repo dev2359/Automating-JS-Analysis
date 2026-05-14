@@ -33,6 +33,16 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    /* 일부 cafe24 쇼핑몰은 기본 HeadlessChrome UA 를 bot 으로 감지해 빈 페이지를 서빙.
+       실제 Chrome 데스크탑 환경을 흉내내어 회피한다. */
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    viewport: { width: 1920, height: 1080 },
+    locale: 'ko-KR',
+    timezoneId: 'Asia/Seoul',
+    extraHTTPHeaders: {
+      'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.8',
+    },
   },
 
   /* Configure projects for major browsers */

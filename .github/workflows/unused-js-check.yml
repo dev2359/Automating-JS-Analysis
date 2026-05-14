@@ -47,6 +47,8 @@ jobs:
           path: |
             coverage-results/
             ai-analysis-results/
+            test-results/
+            playwright-report/
           if-no-files-found: warn
           retention-days: 14
 
