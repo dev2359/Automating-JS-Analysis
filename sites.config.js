@@ -19,8 +19,6 @@ module.exports = [
       category: { role: 'link', name: '전제품', exact: true },
       // 상품 목록에서 첫 번째 상품 상세 진입
       productLink: 'a[href*="/product/detail"]',
-      // 옵션 트리거 (드롭다운 열기) - 사이트에 따라 없을 수 있음
-      optionTrigger: '.xans-product-detail .option_layer .xans-product-option .value',
       // 장바구니 담기 버튼
       cartButton: 'text="장바구니"',
       // 장바구니 페이지 URL (담기 후 명시적 이동)

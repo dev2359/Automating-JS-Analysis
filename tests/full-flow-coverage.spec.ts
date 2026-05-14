@@ -17,7 +17,6 @@ interface Site {
   selectors: {
     category: SelectorSpec;
     productLink: string;
-    optionTrigger?: string;
     cartButton: string;
     basketUrl: string;
     orderButton: string;
@@ -80,6 +79,9 @@ function summarizeCss(entries: Array<{ url: string; text?: string; ranges: Array
 // 사이트마다 독립 test() 를 생성 → 한 사이트 selector 가 깨져도 다른 사이트는 계속 진행
 for (const site of sites) {
   test(`coverage: ${site.name} (${site.id})`, async ({ page }) => {
+    // 사이트가 alert/confirm 을 띄워 page 가 멈추는 것을 방지 (자동 dismiss)
+    page.on('dialog', (d) => { d.dismiss().catch(() => {}); });
+
     await page.coverage.startJSCoverage();
     await page.coverage.startCSSCoverage();
 
@@ -93,31 +95,14 @@ for (const site of sites) {
       await resolveLocator(page, site.selectors.category).click();
     });
 
-    await test.step('3. 상품 상세 진입 및 옵션 선택', async () => {
+    await test.step('3. 상품 상세 진입', async () => {
       const productLink = page.locator(site.selectors.productLink).first();
       await productLink.waitFor({ state: 'visible', timeout: 15000 });
       await productLink.click();
-
       await expect(page.locator('body')).toBeVisible();
-
-      // 옵션은 상품마다 다를 수 있으므로 실패해도 다음 단계로 진행
-      if (site.selectors.optionTrigger) {
-        try {
-          const trigger = page.locator(site.selectors.optionTrigger).first();
-          await trigger.waitFor({ state: 'visible', timeout: 5000 });
-          await trigger.click();
-          await page.waitForTimeout(1000);
-          const anyOption = page.locator('text=/box|세트|개/i').nth(1);
-          if (await anyOption.isVisible()) {
-            await anyOption.click();
-          } else {
-            const fallback = page.locator('text=/box|세트|개/i').first();
-            if (await fallback.isVisible()) await fallback.click();
-          }
-        } catch {
-          console.log(`[${site.id}] 옵션 선택 스킵`);
-        }
-      }
+      // 상세 페이지의 동적 로드 자극을 위해 짧게 스크롤
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForTimeout(500);
     });
 
     await test.step('4. 장바구니 담기', async () => {
