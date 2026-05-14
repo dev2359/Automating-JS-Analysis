@@ -15,7 +15,10 @@ interface Site {
   name: string;
   baseUrl: string;
   selectors: {
-    category: SelectorSpec;
+    // 카테고리 진입 방법: productListUrl 이 있으면 그걸로 직접 goto,
+    // 없으면 category selector 를 클릭하는 메뉴 기반 흐름 사용
+    productListUrl?: string;
+    category?: SelectorSpec;
     productLink: string;
     cartButton: string;
     basketUrl: string;
@@ -92,7 +95,15 @@ for (const site of sites) {
     });
 
     await test.step('2. 카테고리 이동', async () => {
-      await resolveLocator(page, site.selectors.category).click();
+      if (site.selectors.productListUrl) {
+        // 직접 상품 목록 URL 로 이동 — 더 결정론적이고 사이트 메뉴 구조 변경에 강함
+        await page.goto(site.selectors.productListUrl);
+        await page.waitForLoadState('domcontentloaded');
+      } else if (site.selectors.category) {
+        await resolveLocator(page, site.selectors.category).click();
+      } else {
+        throw new Error(`[${site.id}] productListUrl 또는 category selector 중 하나는 필요합니다.`);
+      }
     });
 
     await test.step('3. 상품 상세 진입', async () => {

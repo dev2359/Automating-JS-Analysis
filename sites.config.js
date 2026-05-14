@@ -32,7 +32,9 @@ module.exports = [
     name: '셀라딕스',
     baseUrl: 'https://celladix.co.kr/',
     selectors: {
-      category: { role: 'link', name: 'ALL', exact: true },
+      // BEST 카테고리. cate_list.html 그룹페이지가 아니라 list.html 로 직접 이동해
+      // 상품 detail 링크가 확실히 노출되도록 함.
+      productListUrl: 'https://celladix.co.kr/product/list.html?cate_no=51',
       productLink: 'a[href*="/product/detail"]',
       cartButton: 'text="장바구니"',
       basketUrl: 'https://celladix.co.kr/order/basket.html',
@@ -44,7 +46,7 @@ module.exports = [
     name: '웰릿',
     baseUrl: 'https://wellit.co.kr/',
     selectors: {
-      category: { role: 'link', name: '모든 제품', exact: true },
+      productListUrl: 'https://wellit.co.kr/product/list.html?cate_no=25',
       productLink: 'a[href*="/product/detail"]',
       cartButton: 'text="장바구니"',
       basketUrl: 'https://wellit.co.kr/order/basket.html',
