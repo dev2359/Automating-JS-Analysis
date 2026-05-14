@@ -108,9 +108,6 @@ for (const site of sites) {
 
     await test.step('3. 상품 상세 진입', async () => {
       const productLink = page.locator(site.selectors.productLink).first();
-      // cafe24 메인/리스트 페이지의 상품 anchor 는 캐러셀·슬라이더 안에서 첫 슬라이드
-      // 외엔 display:none/visibility:hidden 으로 시작하는 경우가 많아 'visible' 대신
-      // 'attached' (DOM 존재) 로 확인하고 force click 한다.
       try {
         await productLink.waitFor({ state: 'attached', timeout: 15000 });
       } catch {
@@ -122,9 +119,13 @@ for (const site of sites) {
         await page.waitForTimeout(1500);
         await productLink.waitFor({ state: 'attached', timeout: 30000 });
       }
-      await productLink.scrollIntoViewIfNeeded().catch(() => {});
-      await productLink.click({ force: true });
-      await expect(page.locator('body')).toBeVisible();
+      // anchor 가 캐러셀 hidden slide 안에 있어 click 이 비표준 핸들러로 페이지를
+      // 닫는 케이스가 있어, href 만 추출해 page.goto 로 직접 이동한다.
+      const href = await productLink.getAttribute('href');
+      if (!href) throw new Error(`[${site.id}] product link 에 href 없음`);
+      const detailUrl = new URL(href, page.url()).toString();
+      await page.goto(detailUrl);
+      await page.waitForLoadState('domcontentloaded');
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await page.waitForTimeout(500);
     });
