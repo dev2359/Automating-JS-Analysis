@@ -27,11 +27,28 @@ module.exports = [
       orderButton: 'text="전체상품주문", text="주문하기", a:has-text("주문하기")',
     },
   },
-  // 사이트 추가 예시:
-  // {
-  //   id: 'another-shop',
-  //   name: '예시샵',
-  //   baseUrl: 'https://example.com/',
-  //   selectors: { ... }
-  // },
+  {
+    id: 'celladix',
+    name: '셀라딕스',
+    baseUrl: 'https://celladix.co.kr/',
+    selectors: {
+      category: { role: 'link', name: 'ALL', exact: true },
+      productLink: 'a[href*="/product/detail"]',
+      cartButton: 'text="장바구니"',
+      basketUrl: 'https://celladix.co.kr/order/basket.html',
+      orderButton: 'text="전체상품주문", text="주문하기", a:has-text("주문하기")',
+    },
+  },
+  {
+    id: 'wellit',
+    name: '웰릿',
+    baseUrl: 'https://wellit.co.kr/',
+    selectors: {
+      category: { role: 'link', name: '모든 제품', exact: true },
+      productLink: 'a[href*="/product/detail"]',
+      cartButton: 'text="장바구니"',
+      basketUrl: 'https://wellit.co.kr/order/basket.html',
+      orderButton: 'text="전체상품주문", text="주문하기", a:has-text("주문하기")',
+    },
+  },
 ];

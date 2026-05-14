@@ -6,6 +6,11 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch: # 수동 별도 실행
 
+env:
+  # 2026-06-02 부터 강제 적용 예정인 Node 24 러너에 미리 옵트인.
+  # actions/checkout 및 actions/setup-node 가 Node 24 환경에서 실행된다.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   analyze-and-report:
     runs-on: ubuntu-latest
@@ -31,6 +36,19 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: node analyze-js.js
+
+      # Slack 실패 여부와 무관하게 결과 텍스트/JSON 을 항상 아티팩트로 업로드.
+      # 워크플로 실행 페이지의 "Artifacts" 섹션에서 다운로드할 수 있다.
+      - name: 📤 분석 결과 아티팩트 업로드
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-and-analysis
+          path: |
+            coverage-results/
+            ai-analysis-results/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: 💬 3단계 - Slack 결과 전송
         env:
