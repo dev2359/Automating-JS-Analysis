@@ -10,3 +10,9 @@ node_modules/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Coverage / AI analysis intermediate outputs
+/coverage-results/
+/ai-analysis-results/
+js-coverage-result.json
+ai-analysis-result.txt
+
