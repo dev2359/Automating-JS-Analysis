@@ -133,20 +133,30 @@ async function purchaseFlow(page: Page, site: Site): Promise<void> {
   });
 
   await test.step('4. 장바구니 담기', async () => {
-    const cartBtn = page.locator(site.selectors.cartButton).first();
-    if (await cartBtn.isVisible()) {
-      await cartBtn.click();
+    // 모바일 등 일부 사이트에서 cartButton anchor 가 click 시 비표준 핸들러로
+    // page 를 닫는 경우가 있어 click 자체를 안전하게 감싼다. 담기 실패해도
+    // basket.html 명시적 goto 로 다음 step 진행.
+    try {
+      const cartBtn = page.locator(site.selectors.cartButton).first();
+      if (await cartBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await cartBtn.click({ timeout: 5000 }).catch(() => {});
+      }
+    } catch { /* 무시 */ }
+    if (!page.isClosed()) {
+      await page.goto(site.selectors.basketUrl);
+      await page.waitForLoadState('domcontentloaded');
     }
-    await page.goto(site.selectors.basketUrl);
-    await page.waitForLoadState('domcontentloaded');
   });
 
   await test.step('5. 결제/로그인 페이지 진입', async () => {
-    const orderBtn = page.locator(site.selectors.orderButton).first();
-    if (await orderBtn.isVisible()) {
-      await orderBtn.click();
-    }
-    await page.waitForTimeout(2000);
+    if (page.isClosed()) return;
+    try {
+      const orderBtn = page.locator(site.selectors.orderButton).first();
+      if (await orderBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await orderBtn.click({ timeout: 5000 }).catch(() => {});
+      }
+    } catch { /* 무시 */ }
+    if (!page.isClosed()) await page.waitForTimeout(2000);
   });
 }
 
@@ -230,8 +240,21 @@ for (const site of sites) {
         await journey.run(page, site);
         await expect(page.locator('body')).toBeVisible();
       } finally {
-        const jsCoverage = await page.coverage.stopJSCoverage();
-        const cssCoverage = await page.coverage.stopCSSCoverage();
+        // page 가 도중에 닫힌 케이스 (cafe24 anchor 핸들러 등) 에서 stopCoverage 가
+        // throw 해 finally 가 중단되는 것을 막는다. 측정 못 한 조합은 결과 파일을
+        // 안 만들고 다음 조합으로 넘어간다.
+        if (page.isClosed()) {
+          console.log(`[${site.id}__${journey.id}] page 가 닫힌 상태 — coverage 저장 스킵`);
+          return;
+        }
+        let jsCoverage, cssCoverage;
+        try {
+          jsCoverage = await page.coverage.stopJSCoverage();
+          cssCoverage = await page.coverage.stopCSSCoverage();
+        } catch (e) {
+          console.log(`[${site.id}__${journey.id}] stopCoverage 실패: ${(e && e.message) || e}`);
+          return;
+        }
 
         const js = summarizeJs(jsCoverage);
         const css = summarizeCss(cssCoverage);

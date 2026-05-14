@@ -15,7 +15,10 @@ module.exports = [
     name: '메디온',
     baseUrl: 'https://themedion.com/',
     selectors: {
-      // 카테고리 이동 ("전제품" 같은 전체 카테고리 링크)
+      // PC 메뉴 클릭과 모바일 햄버거 안 hidden 메뉴를 모두 피하려고 list URL 직접 goto.
+      // (themedion 의 '전제품' = cate_no=23)
+      productListUrl: 'https://themedion.com/product/list.html?cate_no=23',
+      // (참고) 메뉴 click 흐름 fallback 이 필요할 때를 위해 selector 유지
       category: { role: 'link', name: '전제품', exact: true },
       // 상품 목록에서 첫 번째 상품 상세 진입
       productLink: 'a[href*="/product/detail"]',
