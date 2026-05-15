@@ -13,22 +13,33 @@ const openai = new OpenAI({ apiKey });
 const COVERAGE_DIR = path.resolve(__dirname, 'coverage-results');
 const OUTPUT_DIR = path.resolve(__dirname, 'ai-analysis-results');
 
-// cafe24 optimizer.php 가 묶은 원본 JS 파일 경로 추출
+// cafe24 의 optimizer.php / optimizer_user.php 가 묶은 원본 파일 경로 추출.
+// 두 번들 모두 URL-safe base64 + raw DEFLATE 인코딩 + control byte 기반 마커 사용:
+//   \x15 (NAK)  : record separator (파일 사이)
+//   \x0a (LF)   : path 안의 '-' 를 인코딩 (예: ec-base-layer → ec\nbase\nlayer)
+//   \x0b (VT)   : prefix 변경 marker
+//   \x0c (FF)   : 확장자 marker (path 와 ext 사이)
 function decodeCafe24Bundle(url) {
   try {
-    const fn = new URL(url).searchParams.get('filename');
+    const u = new URL(url);
+    const fn = u.searchParams.get('filename');
     if (!fn) return null;
+    const type = (u.searchParams.get('type') || 'js').toLowerCase();
     const std = fn.replace(/-/g, '+').replace(/_/g, '/');
     const padded = std + '='.repeat((4 - std.length % 4) % 4);
     const decoded = zlib.inflateRawSync(Buffer.from(padded, 'base64')).toString('binary');
-    const flat = decoded.replace(/[\x0a\x0b\x0c\x15]/g, '');
-    const files = flat.split(/js(?=\/home)/g).map((s, i, arr) => {
-      if (i < arr.length - 1) return s + '.js';
-      if (s.endsWith('.js')) return s;
-      if (s.endsWith('js')) return s.slice(0, -2) + '.js';
-      return s;
+
+    const records = decoded.split('\x15').filter(s => s.length > 0);
+    return records.map(rec => {
+      let p = rec
+        .replace(/\x0a/g, '-')   // path 안의 '-' 복원
+        .replace(/[\x0b\x0c]/g, ''); // prefix/ext marker 제거
+      // optimizer_user.php 케이스: 'sde' (cafe24 internal root) prefix 제거
+      if (p.startsWith('sde')) p = p.slice(3);
+      // 끝에 확장자가 . 없이 붙어있으면 . 추가
+      if (p.endsWith(type)) p = p.slice(0, -type.length) + '.' + type;
+      return p;
     }).filter(s => s.length > 0);
-    return files;
   } catch {
     return null;
   }
@@ -147,7 +158,9 @@ function unionJourneys(journeyResults, kind /* 'js' | 'css' */) {
 
 function toEntryView(d) {
   const category = categorize(d.url);
-  const bundled = d.url.includes('optimizer.php') ? decodeCafe24Bundle(d.url) : null;
+  // optimizer.php (cafe24 system 번들) 와 optimizer_user.php (사용자 스킨 번들) 둘 다 디코딩
+  const isCafe24Bundle = d.url.includes('/ind-script/optimizer.php') || d.url.includes('/ind-script/optimizer_user.php');
+  const bundled = isCafe24Bundle ? decodeCafe24Bundle(d.url) : null;
   return {
     name: shortName(d.url),
     url: d.url,
@@ -257,20 +270,27 @@ ${JSON.stringify(payload, null, 2)}
 *📦 ${site.name}* — 미사용 JS ${jsTotals.unusedKB} KB (${jsTotals.unusedPercentage}), CSS ${cssTotals.unusedKB} KB (${cssTotals.unusedPercentage})
 _측정 여정: ${journeyIds.join(', ')}_
 
-*🎯 운영자가 admin/스킨 편집기로 직접 정리 가능한 미사용 JS Top ${Math.min(8, jsUserControllable.length)}*
-(userControllableJs 항목 그대로. 동일 파일 중복 금지. 각 항목 형식:
-\`name\` — unusedKB KB / totalKB KB (unusedPercentage 미사용) — category 라벨 — **편집 위치 + 한 줄 설명**
+*🎯 운영자가 admin/스킨 편집기로 직접 정리 가능한 미사용 JS Top 10*
+**중요**: \`celladix.co.kr/optimizer_user.php\` 같은 번들 단위로 표기하지 말고, 그 안의 \`bundledFiles\` 에 들어있는 **개별 스킨 파일 path 를 메인 항목** 으로 노출하세요. (예: \`design/skin13/js/cart.js\`, \`design/skin13/js/promotion.js\`). 번들 전체 미사용 KB 는 한 줄 요약으로만 언급.
+
+userControllableJs 의 항목들을 다음 규칙으로 펼쳐 주세요:
+- bundledFiles 가 있는 항목 (optimizer_user.php) → bundledFiles 의 path 들을 측정 여정 정보와 매칭해서 안 쓰일 가능성 높은 파일을 **개별 list item** 으로 추출. 각 항목: \`path\` — 추정 용도 — 편집 위치
+- bundledFiles 가 없는 항목 (외부 트래커, 외부 라이브러리 등) → name + unusedKB / totalKB + 편집 위치
+- 동일 path 중복 금지, 최대 10개
 
 편집 위치 가이드:
-- external_tracker → "admin > 쇼핑몰 설정 > 마케팅/스크립트 추가 영역" 에서 제거
-- external_lib/font → 스킨 HTML 의 \`<script src>\`/\`<link>\` 태그 직접 제거
-- skin_uploaded (/web/upload/) → admin > 디자인 > 파일관리 에서 교체/삭제
-- skin_user_added (optimizer_user.php) → admin > 디자인 > 스크립트/스타일 추가 영역에서 정리
-- skin_inline_html (.html URL) → admin > 디자인 > HTML 편집 에서 inline \`<script>\` 정리
-- skin_custom → 스킨/보드/이벤트 HTML 직접 편집)
+- skin_user_added bundledFiles 내부 (design/skin13/js/, design/skin13/css/) → "admin > 디자인 > HTML/CSS 편집기 > 해당 스킨 파일"
+- skin_inline_html (.html URL) → "admin > 디자인 > HTML 편집 > 해당 페이지 inline \`<script>\`"
+- skin_uploaded (/web/upload/) → "admin > 디자인 > 파일관리"
+- external_tracker → "admin > 쇼핑몰 설정 > 마케팅 / 외부 스크립트 추가 영역"
+- external_lib/font → "스킨 HTML 의 \`<script src>\` / \`<link>\` 태그 직접 제거"
+- skin_custom → "스킨/보드/이벤트 HTML 직접 편집"
 
-*🎨 직접 정리 가능한 미사용 CSS Top ${Math.min(5, cssUserControllable.length)}*
-(userControllableCss 항목 그대로 + 편집 위치)
+각 사이트의 \`optimizer_user.php\` 번들이 측정 여정에서 X KB 미사용이라는 사실은 항목 마지막에 한 줄 요약으로:
+\`└ (참고) optimizer_user.php 번들 전체 미사용 X KB. 개별 파일 단위 정확 측정은 cafe24 번들 구조상 불가, 위 추정은 path + 측정 여정 기반.\`
+
+*🎨 직접 정리 가능한 미사용 CSS Top 5*
+JS 와 같은 규칙: optimizer_user.php bundledFiles 안의 개별 css path 를 메인 항목으로. 번들 단위로 묶지 말 것.
 
 *🏛️ cafe24 시스템 모듈 (참고, 직접 수정 불가)*
 "cafe24 표준 번들에서 약 X KB 미사용. 이 영역은 임대형 호스팅에서 admin 의 '쇼핑몰 기능 사용/미사용' 토글로만 제어 가능하며 개별 파일은 손댈 수 없음." — 한 줄로만. **cafe24 시스템 모듈의 개별 파일 path 를 절대 나열하지 마세요.**
