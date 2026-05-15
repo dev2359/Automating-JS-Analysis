@@ -89,9 +89,12 @@ function pickTop(entries, n) {
         unusedKB: +(d.unusedBytes / 1024).toFixed(1),
         unusedPercentage: d.unusedPercentage,
         observedInJourneys: d.observedInJourneys,
+        // cafe24 번들의 경우 묶인 원본 파일 전체 목록을 GPT 에게 전달.
+        // (byte-level 매핑은 cafe24 가 marker 없이 concatenate 해서 불가능이라,
+        // 대신 path 패턴 + 측정 여정 정보로 어떤 모듈이 안 쓰일지 추론)
         ...(bundled && bundled.length ? {
           bundledFileCount: bundled.length,
-          bundledFiles: bundled.slice(0, 50),
+          bundledFiles: bundled,
         } : {}),
       };
     });
@@ -127,32 +130,61 @@ async function analyzeSite(siteId, site, journeyResults) {
   };
 
   const prompt = `
-다음은 "${site.name}" (${site.baseUrl}) 의 여러 사용자 여정 (${journeyIds.join(', ')}) 에서
-측정한 JS·CSS 커버리지를 합집합(한 여정에서라도 used 면 used 로 간주) 한 결과입니다.
-즉, 아래 "미사용" 으로 분류된 코드는 측정한 여정 어디에서도 실행되지 않은 진짜 dead code 후보입니다.
-용량 단위는 KB(킬로바이트)입니다.
+당신은 cafe24 솔루션 쇼핑몰의 JS 미사용 분석 전문가입니다.
+
+# 측정 컨텍스트
+
+대상 사이트: "${site.name}" (${site.baseUrl})
+측정된 사용자 여정 (${journeyIds.length}개):
+${journeyIds.map(j => '- ' + j + ' 여정').join('\n')}
+
+위 여정은 구체적으로 다음 페이지들을 방문합니다:
+- 메인 페이지 (스크롤 끝까지)
+- 상품 목록 페이지 (/product/list.html)
+- 상품 상세 페이지 (/product/detail.html)
+- 장바구니 페이지 (/order/basket.html)
+- 결제/주문 시작 페이지
+- 검색 결과 페이지 (/product/search.html)
+- 모바일 뷰포트(390x844) 로 동일 흐름
+
+측정에 포함되지 않은 일반적인 페이지들 (참고):
+- 마이페이지(/myshop), 위시리스트, 주문 내역, 적립금/쿠폰 조회
+- 로그인/회원가입(/member/login.html, /page/join.html)
+- 게시판/리뷰/Q&A (/board/...)
+- 이벤트 페이지 (/event/...)
+- 펀딩/예약/특수 옵션 상품 페이지
+
+# 측정 데이터 (KB 단위)
 
 ${JSON.stringify(payload, null, 2)}
 
-위 데이터를 바탕으로 Slack 한 섹션에 들어갈 짧은 분석 리포트를 한국어로 작성해 주세요.
-규칙:
-- 파일을 도메인으로 뭉뚱그리지 말고, name 필드의 "host/파일명" 형태를 그대로 사용해 식별 가능하게 표기.
-- 용량은 unusedKB / totalKB 값을 KB 단위로 표기.
-- bundledFiles 가 있는 항목은 cafe24 optimizer.php 가 여러 원본 JS 를 묶어 서빙하는 케이스이므로, 묶여있는 대표 파일 5~10개를 basename 만 짧게 나열해 어떤 모듈들이 들어있는지 보여주세요.
-- JS 와 CSS 를 분리해서 표기하세요. CSS 가 비어있으면 그 섹션은 생략.
+# 주의사항 (매우 중요)
 
-리포트 구성:
+topUnusedJs 안의 "celladix.co.kr/optimizer.php" 같은 항목들은 **cafe24 가 100개+ 원본 JS 파일을 하나로 묶어 서빙하는 번들** 입니다. bundledFiles 필드에 그 안에 묶여있는 원본 파일 path 전체 목록이 들어있어요. cafe24 가 번들 응답에 파일 경계 마커를 안 넣어 byte-level 매핑은 불가능하지만, **bundledFiles 의 path 패턴 + 측정된 여정 정보를 종합하면 어떤 원본 파일이 측정 여정에서 거의 확실히 호출되지 않는지 추론 가능** 합니다.
+
+# 출력 형식 (Slack mrkdwn, 한국어)
+
+리포트는 cafe24 번들 단위가 아니라 **번들 안에서 추론된 개별 원본 파일** 을 메인 항목으로 노출해 주세요. "celladix.co.kr/optimizer.php — 77% 미사용" 같은 번들 단위 보고는 하지 마세요.
 
 *📦 ${site.name}* — ${journeyIds.length}개 여정 합집합 기준 미사용 JS ${jsTotals.unusedKB} KB (${jsTotals.unusedPercentage}), CSS ${cssTotals.unusedKB} KB (${cssTotals.unusedPercentage})
 _측정 여정: ${journeyIds.join(', ')}_
 
-*🚨 미사용 JS Top 5*
-(각 항목: name + 미사용 % + 미사용 KB / 전체 KB. bundledFiles 있으면 "└ 묶인 파일: a.js, b.js ... (총 N개)" 한 줄 추가)
+*🚨 측정 여정에서 호출되지 않을 가능성이 매우 높은 cafe24 모듈 Top 10*
+(각 항목: bundledFiles 안의 path 에서 의미 있는 부분만 추출 — 예: "async/asyncWishList.js", "Front/New/Option/Extra/NewOptionExtraFunding.js" — + 어떤 페이지·기능에서만 쓸지 한 줄 추정)
+1. {파일 path} — {추정 용도}
+2. ...
+
+*🌐 cafe24 번들 외부의 미사용 큰 파일 Top 3*
+(topUnusedJs 항목 중 bundledFiles 가 없는 항목들 — 예: channel.io, googletagmanager, tiktok, bigin, hackle 등 외부 트래커/SDK)
+1. {host/filename} — {unusedKB} KB / {totalKB} KB ({unusedPercentage} 미사용)
+2. ...
 
 *🎨 미사용 CSS Top 3* (CSS 데이터 있을 때만)
+1. {host/filename} — {unusedKB} KB ({unusedPercentage} 미사용)
 
-*🔍 짧은 한 줄 요약*
-(여러 여정 합집합에도 안 쓰이는 가장 큰 낭비 항목 한 줄로)
+*💡 즉시 정리 효과가 큰 제안 (2~3줄)*
+- cafe24 admin 의 스크립트 최적화 설정에서 빠질 수 있는 모듈군
+- 또는 외부 트래커 중 정리해도 좋을 항목
 `;
 
   console.log(`🤖 [${siteId}] OpenAI 분석 요청 중... (${journeyIds.length}개 여정 합집합)`);
