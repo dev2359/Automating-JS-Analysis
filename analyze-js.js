@@ -44,6 +44,75 @@ function shortName(url) {
   }
 }
 
+// URL 을 정리 가능성 기준 카테고리로 분류한다.
+// 카페24 임대형 호스팅에서는 시스템 표준 스크립트(Front/, async/, lib/Uipack/ 등)는
+// 직접 코드 수정이 불가능하고 admin 토글만 가능. 외부 트래커/라이브러리/사용자 커스텀
+// 스크립트는 admin 에서 추가/제거하거나 직접 수정 가능.
+const TRACKER_HOSTS = new Set([
+  'www.googletagmanager.com', 'googletagmanager.com',
+  'analytics.tiktok.com', 'analytics.google.com',
+  'cdn.channel.io',
+  'static.hackle.io',
+  'sdk.bigin.io',
+  'connect.facebook.net',
+  'cdn.snapfit.co.kr',
+  'developers.kakao.com', 'pf.kakao.com', 't1.kakaocdn.net',
+  'cdn.taboola.com',
+]);
+const LIB_CDN_HOSTS = new Set([
+  'cdnjs.cloudflare.com', 'cdn.jsdelivr.net', 'unpkg.com', 'code.jquery.com',
+]);
+const FONT_HOSTS = new Set([
+  'fonts.googleapis.com', 'fonts.gstatic.com',
+  'use.typekit.net', 'fonts.cdnfonts.com',
+]);
+const CAFE24_HOST_KEYWORDS = ['cafe24.com', 'cafe24img', 'echosting', 'poxo.com'];
+
+function categorize(url) {
+  let u;
+  try { u = new URL(url); } catch { return 'unknown'; }
+  const host = u.host;
+
+  if (TRACKER_HOSTS.has(host)) return 'external_tracker';
+  if (LIB_CDN_HOSTS.has(host)) return 'external_lib';
+  if (FONT_HOSTS.has(host)) return 'external_font';
+  if (CAFE24_HOST_KEYWORDS.some(k => host.includes(k))) return 'cafe24_system';
+
+  // 사이트 자체 호스팅 — path 로 세분화
+  const pathname = u.pathname;
+  // cafe24 표준 스크립트 번들 (Front/, async/, lib/ 등 system 모듈 묶음). 직접 수정 불가.
+  if (pathname.includes('/ind-script/optimizer.php')) return 'cafe24_system';
+  // cafe24 system app (Eclog, cid.generate 등)
+  if (pathname.startsWith('/app/')) return 'cafe24_system';
+  // optimizer_user.php: admin 에서 사용자가 추가한 외부 CSS/JS 의 묶음
+  if (pathname.includes('/ind-script/optimizer_user.php')) return 'skin_user_added';
+  // /web/upload/: admin 에서 업로드한 사용자 JS 파일
+  if (pathname.startsWith('/web/upload/')) return 'skin_uploaded';
+  // .html 페이지 URL 의 inline 스크립트: 스킨 편집기에서 HTML 편집 시 들어가는 JS
+  if (pathname.endsWith('.html')) return 'skin_inline_html';
+
+  // 그 외 사이트 자체 호스팅 — 스킨/보드/이벤트 등 사용자 커스텀
+  return 'skin_custom';
+}
+
+const CATEGORY_LABELS = {
+  external_tracker: '🔌 외부 트래커/SDK (admin → 디자인 편집 → 추가 스크립트)',
+  external_lib: '📚 외부 라이브러리 CDN (사용자 추가)',
+  external_font: '🔤 외부 폰트',
+  skin_uploaded: '📁 /web/upload/ 업로드 파일 (admin 디자인 편집기에서 교체)',
+  skin_user_added: '🧩 optimizer_user.php (admin에서 사용자가 추가한 외부 CSS/JS 묶음)',
+  skin_inline_html: '📝 스킨 HTML 안 inline 스크립트 (admin 디자인 편집기)',
+  skin_custom: '🎨 사이트 커스텀 스크립트 (스킨/보드/이벤트)',
+  cafe24_system: '🏛️ cafe24 시스템 (직접 수정 불가, admin 토글만)',
+  unknown: '❓ 분류 불가',
+};
+
+// 사용자가 admin/스킨 편집기에서 직접 정리·교체·수정 가능한 카테고리들
+const USER_CONTROLLABLE = [
+  'external_tracker', 'external_lib', 'external_font',
+  'skin_uploaded', 'skin_user_added', 'skin_inline_html', 'skin_custom',
+];
+
 // 한 사이트의 여러 여정 결과를 URL 단위로 합집합(union) 한다.
 // 정책: 한 여정에서라도 used 되면 used 로 간주 → unusedBytes 는 여정들 간 최소값,
 // usedBytes 는 최대값. totalBytes 는 가장 큰 값으로 통일 (보통 동일).
@@ -76,28 +145,31 @@ function unionJourneys(journeyResults, kind /* 'js' | 'css' */) {
   return out;
 }
 
-function pickTop(entries, n) {
+function toEntryView(d) {
+  const category = categorize(d.url);
+  const bundled = d.url.includes('optimizer.php') ? decodeCafe24Bundle(d.url) : null;
+  return {
+    name: shortName(d.url),
+    url: d.url,
+    category,
+    totalKB: +(d.totalBytes / 1024).toFixed(1),
+    unusedKB: +(d.unusedBytes / 1024).toFixed(1),
+    unusedPercentage: d.unusedPercentage,
+    observedInJourneys: d.observedInJourneys,
+    ...(bundled && bundled.length ? {
+      bundledFileCount: bundled.length,
+      bundledFiles: bundled,
+    } : {}),
+  };
+}
+
+function pickTopByCategory(entries, categories, n) {
   return entries
     .filter(d => d.unusedBytes > 0)
-    .sort((a, b) => b.unusedBytes - a.unusedBytes)
-    .slice(0, n)
-    .map(d => {
-      const bundled = d.url.includes('optimizer.php') ? decodeCafe24Bundle(d.url) : null;
-      return {
-        name: shortName(d.url),
-        totalKB: +(d.totalBytes / 1024).toFixed(1),
-        unusedKB: +(d.unusedBytes / 1024).toFixed(1),
-        unusedPercentage: d.unusedPercentage,
-        observedInJourneys: d.observedInJourneys,
-        // cafe24 번들의 경우 묶인 원본 파일 전체 목록을 GPT 에게 전달.
-        // (byte-level 매핑은 cafe24 가 marker 없이 concatenate 해서 불가능이라,
-        // 대신 path 패턴 + 측정 여정 정보로 어떤 모듈이 안 쓰일지 추론)
-        ...(bundled && bundled.length ? {
-          bundledFileCount: bundled.length,
-          bundledFiles: bundled,
-        } : {}),
-      };
-    });
+    .map(toEntryView)
+    .filter(e => categories.includes(e.category))
+    .sort((a, b) => b.unusedKB - a.unusedKB)
+    .slice(0, n);
 }
 
 function totalsKB(entries) {
@@ -115,76 +187,98 @@ async function analyzeSite(siteId, site, journeyResults) {
   const js = unionJourneys(journeyResults, 'js');
   const css = unionJourneys(journeyResults, 'css');
 
-  const jsTop = pickTop(js, 10);
-  const cssTop = pickTop(css, 5);
+  // 사용자가 직접 정리할 수 있는 카테고리 위주로 Top 추출
+  const jsUserControllable = pickTopByCategory(js, USER_CONTROLLABLE, 10);
+  const cssUserControllable = pickTopByCategory(css, USER_CONTROLLABLE, 5);
+
+  // cafe24 시스템 (참고용, 직접 수정 불가)
+  const jsCafe24 = pickTopByCategory(js, ['cafe24_system'], 5);
+
   const jsTotals = totalsKB(js);
   const cssTotals = totalsKB(css);
+
+  // 카테고리별 미사용 KB 합계 (요약)
+  const byCategoryUnused = {};
+  for (const e of js) {
+    if (e.unusedBytes <= 0) continue;
+    const cat = categorize(e.url);
+    byCategoryUnused[cat] = (byCategoryUnused[cat] || 0) + e.unusedBytes;
+  }
+  const categoryBreakdown = Object.entries(byCategoryUnused)
+    .map(([cat, bytes]) => ({ category: cat, label: CATEGORY_LABELS[cat], unusedKB: +(bytes / 1024).toFixed(1) }))
+    .sort((a, b) => b.unusedKB - a.unusedKB);
 
   const payload = {
     site: site.name,
     baseUrl: site.baseUrl,
     observedJourneys: journeyIds,
     summary: { js: jsTotals, css: cssTotals },
-    topUnusedJs: jsTop,
-    topUnusedCss: cssTop,
+    jsUnusedByCategory: categoryBreakdown,
+    userControllableJs: jsUserControllable,    // ← 메인 분석 대상
+    userControllableCss: cssUserControllable,
+    cafe24SystemJs: jsCafe24,                  // ← 참고용
   };
 
   const prompt = `
-당신은 cafe24 솔루션 쇼핑몰의 JS 미사용 분석 전문가입니다.
+당신은 cafe24 임대형 쇼핑몰 운영자를 돕는 JS/CSS 미사용 분석 전문가입니다.
+
+# 가장 중요한 원칙
+
+cafe24 임대형 호스팅에서 사용자가 admin/스킨 편집기로 직접 수정 가능한 영역은 명확히 제한적입니다:
+
+✅ 사용자가 직접 수정·제거 가능:
+- 외부 트래커/SDK (admin → 디자인 → 스크립트 추가 영역에서 추가/제거)
+- 외부 라이브러리 CDN (cdnjs, jsdelivr 등 사용자가 추가한 것)
+- /web/upload/ 에 업로드한 사용자 JS 파일
+- optimizer_user.php 묶음 (admin 에서 추가한 외부 스크립트 모음)
+- 스킨 HTML 페이지 안의 inline 스크립트 (.html URL — admin → 디자인 → HTML 편집)
+- 스킨/보드/이벤트 페이지의 사이트 커스텀 스크립트
+
+❌ 사용자가 직접 수정 불가 (참고만):
+- cafe24 표준 번들 optimizer.php — Front/, async/, lib/Uipack/ 등 cafe24 system 모듈만 묶여있음
+- /app/Eclog/ 같은 cafe24 system app
+- → 이 영역의 모듈을 개별 파일명으로 나열하지 마세요. 운영자가 손댈 수 없는 코드입니다. cafe24 admin 의 "기능 사용/미사용" 토글로 일부만 제어 가능하다는 점만 언급.
 
 # 측정 컨텍스트
 
-대상 사이트: "${site.name}" (${site.baseUrl})
-측정된 사용자 여정 (${journeyIds.length}개):
-${journeyIds.map(j => '- ' + j + ' 여정').join('\n')}
-
-위 여정은 구체적으로 다음 페이지들을 방문합니다:
-- 메인 페이지 (스크롤 끝까지)
-- 상품 목록 페이지 (/product/list.html)
-- 상품 상세 페이지 (/product/detail.html)
-- 장바구니 페이지 (/order/basket.html)
-- 결제/주문 시작 페이지
-- 검색 결과 페이지 (/product/search.html)
-- 모바일 뷰포트(390x844) 로 동일 흐름
-
-측정에 포함되지 않은 일반적인 페이지들 (참고):
-- 마이페이지(/myshop), 위시리스트, 주문 내역, 적립금/쿠폰 조회
-- 로그인/회원가입(/member/login.html, /page/join.html)
-- 게시판/리뷰/Q&A (/board/...)
-- 이벤트 페이지 (/event/...)
-- 펀딩/예약/특수 옵션 상품 페이지
+대상: "${site.name}" (${site.baseUrl})
+측정 여정 (${journeyIds.length}개): ${journeyIds.join(', ')}
+방문 페이지: 메인, 상품목록, 상품상세, 장바구니, 주문진입, 검색결과, 모바일 동일 흐름
+측정 안 한 페이지(참고): 마이페이지, 회원가입/로그인, 게시판, 이벤트, 펀딩
 
 # 측정 데이터 (KB 단위)
 
 ${JSON.stringify(payload, null, 2)}
 
-# 주의사항 (매우 중요)
-
-topUnusedJs 안의 "celladix.co.kr/optimizer.php" 같은 항목들은 **cafe24 가 100개+ 원본 JS 파일을 하나로 묶어 서빙하는 번들** 입니다. bundledFiles 필드에 그 안에 묶여있는 원본 파일 path 전체 목록이 들어있어요. cafe24 가 번들 응답에 파일 경계 마커를 안 넣어 byte-level 매핑은 불가능하지만, **bundledFiles 의 path 패턴 + 측정된 여정 정보를 종합하면 어떤 원본 파일이 측정 여정에서 거의 확실히 호출되지 않는지 추론 가능** 합니다.
-
 # 출력 형식 (Slack mrkdwn, 한국어)
 
-리포트는 cafe24 번들 단위가 아니라 **번들 안에서 추론된 개별 원본 파일** 을 메인 항목으로 노출해 주세요. "celladix.co.kr/optimizer.php — 77% 미사용" 같은 번들 단위 보고는 하지 마세요.
+메인 섹션은 userControllableJs / userControllableCss 입니다. cafe24 시스템은 마지막 1줄 참고만.
 
-*📦 ${site.name}* — ${journeyIds.length}개 여정 합집합 기준 미사용 JS ${jsTotals.unusedKB} KB (${jsTotals.unusedPercentage}), CSS ${cssTotals.unusedKB} KB (${cssTotals.unusedPercentage})
+*📦 ${site.name}* — 미사용 JS ${jsTotals.unusedKB} KB (${jsTotals.unusedPercentage}), CSS ${cssTotals.unusedKB} KB (${cssTotals.unusedPercentage})
 _측정 여정: ${journeyIds.join(', ')}_
 
-*🚨 측정 여정에서 호출되지 않을 가능성이 매우 높은 cafe24 모듈 Top 10*
-(각 항목: bundledFiles 안의 path 에서 의미 있는 부분만 추출 — 예: "async/asyncWishList.js", "Front/New/Option/Extra/NewOptionExtraFunding.js" — + 어떤 페이지·기능에서만 쓸지 한 줄 추정)
-1. {파일 path} — {추정 용도}
-2. ...
+*🎯 운영자가 admin/스킨 편집기로 직접 정리 가능한 미사용 JS Top ${Math.min(8, jsUserControllable.length)}*
+(userControllableJs 항목 그대로. 동일 파일 중복 금지. 각 항목 형식:
+\`name\` — unusedKB KB / totalKB KB (unusedPercentage 미사용) — category 라벨 — **편집 위치 + 한 줄 설명**
 
-*🌐 cafe24 번들 외부의 미사용 큰 파일 Top 3*
-(topUnusedJs 항목 중 bundledFiles 가 없는 항목들 — 예: channel.io, googletagmanager, tiktok, bigin, hackle 등 외부 트래커/SDK)
-1. {host/filename} — {unusedKB} KB / {totalKB} KB ({unusedPercentage} 미사용)
-2. ...
+편집 위치 가이드:
+- external_tracker → "admin > 쇼핑몰 설정 > 마케팅/스크립트 추가 영역" 에서 제거
+- external_lib/font → 스킨 HTML 의 \`<script src>\`/\`<link>\` 태그 직접 제거
+- skin_uploaded (/web/upload/) → admin > 디자인 > 파일관리 에서 교체/삭제
+- skin_user_added (optimizer_user.php) → admin > 디자인 > 스크립트/스타일 추가 영역에서 정리
+- skin_inline_html (.html URL) → admin > 디자인 > HTML 편집 에서 inline \`<script>\` 정리
+- skin_custom → 스킨/보드/이벤트 HTML 직접 편집)
 
-*🎨 미사용 CSS Top 3* (CSS 데이터 있을 때만)
-1. {host/filename} — {unusedKB} KB ({unusedPercentage} 미사용)
+*🎨 직접 정리 가능한 미사용 CSS Top ${Math.min(5, cssUserControllable.length)}*
+(userControllableCss 항목 그대로 + 편집 위치)
 
-*💡 즉시 정리 효과가 큰 제안 (2~3줄)*
-- cafe24 admin 의 스크립트 최적화 설정에서 빠질 수 있는 모듈군
-- 또는 외부 트래커 중 정리해도 좋을 항목
+*🏛️ cafe24 시스템 모듈 (참고, 직접 수정 불가)*
+"cafe24 표준 번들에서 약 X KB 미사용. 이 영역은 임대형 호스팅에서 admin 의 '쇼핑몰 기능 사용/미사용' 토글로만 제어 가능하며 개별 파일은 손댈 수 없음." — 한 줄로만. **cafe24 시스템 모듈의 개별 파일 path 를 절대 나열하지 마세요.**
+
+*💡 오늘 바로 실행 가능한 정리 액션 3개*
+구체적으로 어디 가서 무엇을 끄면 몇 KB 절감되는지 형식. 예:
+- "admin > 디자인 > HTML 편집 > 상품 상세 페이지 > inline 스크립트 정리 → X KB 절감"
+- "TikTok 픽셀을 사용하지 않는다면 admin > 쇼핑몰 설정 > 마케팅 > TikTok 픽셀 비활성화 → Y KB 절감"
 `;
 
   console.log(`🤖 [${siteId}] OpenAI 분석 요청 중... (${journeyIds.length}개 여정 합집합)`);
