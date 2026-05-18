@@ -12,6 +12,9 @@ const openai = new OpenAI({ apiKey });
 
 const COVERAGE_DIR = path.resolve(__dirname, 'coverage-results');
 const OUTPUT_DIR = path.resolve(__dirname, 'ai-analysis-results');
+const HISTORY_DIR = path.resolve(__dirname, 'history');
+const HISTORY_DIFF_DAYS = 7; // 시계열 비교 기준 (며칠 전 vs 오늘)
+const TRACKER_DIFF_MIN_KB = 30; // 이 값 이상 차이날 때만 변화로 인정 (노이즈 컷)
 
 // cafe24 의 optimizer.php / optimizer_user.php 가 묶은 원본 파일 경로 추출.
 // 두 번들 모두 URL-safe base64 + raw DEFLATE 인코딩 + control byte 기반 마커 사용:
@@ -195,7 +198,97 @@ function totalsKB(entries) {
   };
 }
 
-async function analyzeSite(siteId, site, journeyResults) {
+// ───────────────────────────────────────────────────────────────────────────
+// 시계열 추적 (history/) — 매일 cron 결과를 git 에 누적 commit 해서
+// 7일 전 대비 외부 트래커의 미사용량 변화를 자동 감지.
+// ───────────────────────────────────────────────────────────────────────────
+
+function todayDateStr() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+}
+
+// 7일 전 (또는 그보다 이전 가장 가까운) history 파일 로드
+function loadPastHistory(daysAgo) {
+  if (!fs.existsSync(HISTORY_DIR)) return null;
+  const target = new Date();
+  target.setUTCDate(target.getUTCDate() - daysAgo);
+  const targetStr = target.toISOString().slice(0, 10);
+  const files = fs.readdirSync(HISTORY_DIR)
+    .filter(f => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort();
+  // 정확히 targetStr 이 있으면 그것, 없으면 targetStr 보다 더 이전 중 가장 최근
+  const eligible = files.filter(f => f.slice(0, 10) <= targetStr);
+  if (eligible.length === 0) return null;
+  const chosen = eligible[eligible.length - 1];
+  try {
+    return {
+      date: chosen.slice(0, 10),
+      data: JSON.parse(fs.readFileSync(path.join(HISTORY_DIR, chosen), 'utf-8')),
+    };
+  } catch {
+    return null;
+  }
+}
+
+// 한 사이트의 외부 트래커 시계열 변화 계산
+function diffExternalTrackers(todaySnapshot, pastSnapshot) {
+  if (!pastSnapshot) return null;
+  const todayMap = new Map((todaySnapshot.externalTrackers || []).map(t => [t.name, t]));
+  const pastMap = new Map((pastSnapshot.externalTrackers || []).map(t => [t.name, t]));
+  const changes = [];
+  for (const [name, t] of todayMap) {
+    const p = pastMap.get(name);
+    if (!p) {
+      changes.push({ name, kind: 'new', currentUnusedKB: t.unusedKB });
+    } else {
+      const delta = +(t.unusedKB - p.unusedKB).toFixed(1);
+      if (Math.abs(delta) >= TRACKER_DIFF_MIN_KB) {
+        changes.push({
+          name,
+          kind: delta > 0 ? 'increased' : 'decreased',
+          deltaKB: delta,
+          fromUnusedKB: p.unusedKB,
+          toUnusedKB: t.unusedKB,
+          fromUnusedPct: p.unusedPercentage,
+          toUnusedPct: t.unusedPercentage,
+        });
+      }
+    }
+  }
+  for (const [name, p] of pastMap) {
+    if (!todayMap.has(name)) {
+      changes.push({ name, kind: 'removed', pastUnusedKB: p.unusedKB });
+    }
+  }
+  return changes.sort((a, b) => Math.abs(b.deltaKB || 0) - Math.abs(a.deltaKB || 0));
+}
+
+// 한 사이트의 오늘 snapshot 생성 (history/YYYY-MM-DD.json 의 sites[siteId] 부분)
+function buildSiteSnapshot(site, js, css, jsTotals, cssTotals) {
+  const trackerEntries = js
+    .filter(e => e.unusedBytes > 0 && categorize(e.url) === 'external_tracker')
+    .sort((a, b) => b.unusedBytes - a.unusedBytes)
+    .map(e => ({
+      name: shortName(e.url),
+      url: e.url.split('?')[0],
+      totalKB: +(e.totalBytes / 1024).toFixed(1),
+      unusedKB: +(e.unusedBytes / 1024).toFixed(1),
+      unusedPercentage: e.unusedPercentage,
+    }));
+  const byCategoryKB = {};
+  for (const e of js) {
+    if (e.unusedBytes <= 0) continue;
+    const cat = categorize(e.url);
+    byCategoryKB[cat] = +((byCategoryKB[cat] || 0) + e.unusedBytes / 1024).toFixed(1);
+  }
+  return {
+    summary: { js: jsTotals, css: cssTotals },
+    byCategoryUnusedKB: byCategoryKB,
+    externalTrackers: trackerEntries,
+  };
+}
+
+async function analyzeSite(siteId, site, journeyResults, pastSiteSnapshot) {
   const journeyIds = journeyResults.map(r => r.journey.id);
   const js = unionJourneys(journeyResults, 'js');
   const css = unionJourneys(journeyResults, 'css');
@@ -221,6 +314,11 @@ async function analyzeSite(siteId, site, journeyResults) {
     .map(([cat, bytes]) => ({ category: cat, label: CATEGORY_LABELS[cat], unusedKB: +(bytes / 1024).toFixed(1) }))
     .sort((a, b) => b.unusedKB - a.unusedKB);
 
+  // 오늘의 사이트 snapshot — main() 에서 history 저장에 재사용
+  const todaySnapshot = buildSiteSnapshot(site, js, css, jsTotals, cssTotals);
+  // 7일 전 대비 외부 트래커 변화
+  const trackerChanges = pastSiteSnapshot ? diffExternalTrackers(todaySnapshot, pastSiteSnapshot) : null;
+
   const payload = {
     site: site.name,
     baseUrl: site.baseUrl,
@@ -230,6 +328,7 @@ async function analyzeSite(siteId, site, journeyResults) {
     userControllableJs: jsUserControllable,    // ← 메인 분석 대상
     userControllableCss: cssUserControllable,
     cafe24SystemJs: jsCafe24,                  // ← 참고용
+    externalTrackerChanges: trackerChanges,    // ← 7일 전 대비 변화 (없으면 null)
   };
 
   const prompt = `
@@ -295,13 +394,19 @@ JS 와 같은 규칙: optimizer_user.php bundledFiles 안의 개별 css path 를
 *🏛️ cafe24 시스템 모듈 (참고, 직접 수정 불가)*
 "cafe24 표준 번들에서 약 X KB 미사용. 이 영역은 임대형 호스팅에서 admin 의 '쇼핑몰 기능 사용/미사용' 토글로만 제어 가능하며 개별 파일은 손댈 수 없음." — 한 줄로만. **cafe24 시스템 모듈의 개별 파일 path 를 절대 나열하지 마세요.**
 
+*⚠️ ${HISTORY_DIFF_DAYS}일 전 대비 외부 트래커 변화* (externalTrackerChanges 가 null 이면 이 섹션 통째로 생략. 빈 배열이면 "최근 ${HISTORY_DIFF_DAYS}일간 ${TRACKER_DIFF_MIN_KB} KB 이상의 의미 있는 변화 없음" 한 줄.)
+- kind=increased (미사용량 +): "트래커 X 미사용량 +DELTA KB (Y → Z KB) — 사이트에서 호출 횟수가 줄어들었거나 트래커 비활성화 가능성"
+- kind=decreased (미사용량 -): "트래커 X 미사용량 -DELTA KB (Y → Z KB) — 사용 재개 또는 호출 증가"
+- kind=new: "새 트래커 추가됨: X (현재 미사용 N KB)"
+- kind=removed: "트래커 제거됨: X"
+
 *💡 오늘 바로 실행 가능한 정리 액션 3개*
 구체적으로 어디 가서 무엇을 끄면 몇 KB 절감되는지 형식. 예:
 - "admin > 디자인 > HTML 편집 > 상품 상세 페이지 > inline 스크립트 정리 → X KB 절감"
 - "TikTok 픽셀을 사용하지 않는다면 admin > 쇼핑몰 설정 > 마케팅 > TikTok 픽셀 비활성화 → Y KB 절감"
 `;
 
-  console.log(`🤖 [${siteId}] OpenAI 분석 요청 중... (${journeyIds.length}개 여정 합집합)`);
+  console.log(`🤖 [${siteId}] OpenAI 분석 요청 중... (${journeyIds.length}개 여정 합집합${pastSiteSnapshot ? ', 7일 비교 데이터 포함' : ''})`);
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [{ role: 'user', content: prompt }],
@@ -309,7 +414,7 @@ JS 와 같은 규칙: optimizer_user.php bundledFiles 안의 개별 css path 를
   });
   const text = response.choices[0].message.content || '';
   console.log(`✨ [${siteId}] 결과 길이: ${text.length}자`);
-  return text;
+  return { text, snapshot: todaySnapshot };
 }
 
 async function main() {
@@ -343,17 +448,41 @@ async function main() {
 
   console.log(`📦 ${bySite.size}개 사이트, 총 ${files.length}개 여정 결과 로드`);
 
+  // 7일 전 history 로드 (없으면 첫 실행 등으로 비교 불가)
+  const past = loadPastHistory(HISTORY_DIFF_DAYS);
+  if (past) {
+    console.log(`📅 비교 기준 history: ${past.date} (목표 ${HISTORY_DIFF_DAYS}일 전)`);
+  } else {
+    console.log(`📅 비교 기준 history 없음 (첫 실행이거나 history 비어있음). 오늘 snapshot 만 저장.`);
+  }
+
+  const todaySnapshots = {}; // siteId -> snapshot (오늘 history 저장용)
   let okCount = 0;
   for (const [siteId, group] of bySite) {
     try {
-      const text = await analyzeSite(siteId, group.site, group.journeys);
+      const pastSiteSnapshot = past && past.data.sites ? past.data.sites[siteId] : null;
+      const { text, snapshot } = await analyzeSite(siteId, group.site, group.journeys, pastSiteSnapshot);
       fs.writeFileSync(path.join(OUTPUT_DIR, `${siteId}.txt`), text);
+      todaySnapshots[siteId] = snapshot;
       okCount++;
     } catch (e) {
       console.error(`❌ [${siteId}] 분석 실패:`, e.message);
     }
   }
   console.log(`✅ ${okCount}/${bySite.size} 사이트 분석 완료 → ${OUTPUT_DIR}`);
+
+  // 오늘 snapshot 을 history/{date}.json 으로 저장 (워크플로가 별도 step 에서 자동 commit)
+  if (Object.keys(todaySnapshots).length > 0) {
+    if (!fs.existsSync(HISTORY_DIR)) fs.mkdirSync(HISTORY_DIR, { recursive: true });
+    const dateStr = todayDateStr();
+    const historyFile = path.join(HISTORY_DIR, `${dateStr}.json`);
+    fs.writeFileSync(historyFile, JSON.stringify({
+      date: dateStr,
+      sites: todaySnapshots,
+    }, null, 2));
+    console.log(`📅 history snapshot 저장 → ${historyFile}`);
+  }
+
   if (okCount === 0) process.exit(1);
 }
 

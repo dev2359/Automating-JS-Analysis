@@ -14,6 +14,9 @@ env:
 jobs:
   analyze-and-report:
     runs-on: ubuntu-latest
+    # history/ 디렉토리에 매일 snapshot 을 자동 commit 하려면 contents:write 필요
+    permissions:
+      contents: write
     steps:
       - name: 📦 코드 체크아웃
         uses: actions/checkout@v4
@@ -36,6 +39,22 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: node analyze-js.js
+
+      # OpenAI 분석이 생성한 오늘 snapshot (history/YYYY-MM-DD.json) 을 main 에 자동 commit.
+      # 시계열 누적 데이터로, 다음 실행 시 7일 전 비교에 사용된다.
+      - name: 📅 history snapshot 자동 commit
+        if: success()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add history/ 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "ℹ️ history 변경 없음 (스킵)"
+          else
+            git commit -m "chore: archive coverage history $(date -u +%Y-%m-%d) [skip ci]"
+            git push origin HEAD:main
+            echo "✅ history snapshot 커밋·푸시 완료"
+          fi
 
       # Slack 실패 여부와 무관하게 결과 텍스트/JSON 을 항상 아티팩트로 업로드.
       # 워크플로 실행 페이지의 "Artifacts" 섹션에서 다운로드할 수 있다.
