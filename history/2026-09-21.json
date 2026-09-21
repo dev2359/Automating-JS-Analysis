@@ -1,0 +1,831 @@
+{
+  "date": "2026-09-21",
+  "sites": {
+    "celladix": {
+      "summary": {
+        "js": {
+          "totalKB": 16953.5,
+          "unusedKB": 9887.9,
+          "unusedPercentage": "58.32%"
+        },
+        "css": {
+          "totalKB": 1928.9,
+          "unusedKB": 1832.6,
+          "unusedPercentage": "95.01%"
+        }
+      },
+      "byCategoryUnusedKB": {
+        "external_lib": 287,
+        "skin_custom": 582.3,
+        "cafe24_system": 3983.6,
+        "external_tracker": 4365.2,
+        "skin_user_added": 669.3
+      },
+      "externalTrackers": [
+        {
+          "name": "cdn.channel.io/ch-plugin-core.5a1c2d7b.vendor.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core.5a1c2d7b.vendor.js",
+          "totalKB": 592.2,
+          "unusedKB": 346.3,
+          "unusedPercentage": "58.47%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 479.7,
+          "unusedKB": 344.4,
+          "unusedPercentage": "71.79%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 424.8,
+          "unusedKB": 327.6,
+          "unusedPercentage": "77.13%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 587.4,
+          "unusedKB": 278.5,
+          "unusedPercentage": "47.41%"
+        },
+        {
+          "name": "analytics.tiktok.com/main.MWU2MzIzODM0MQ.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/static/main.MWU2MzIzODM0MQ.js",
+          "totalKB": 485.2,
+          "unusedKB": 276.8,
+          "unusedPercentage": "57.05%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 511.2,
+          "unusedKB": 270.2,
+          "unusedPercentage": "52.86%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 424.8,
+          "unusedKB": 246.5,
+          "unusedPercentage": "58.03%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-core-20260917193237.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core-20260917193237.js",
+          "totalKB": 472.1,
+          "unusedKB": 244.5,
+          "unusedPercentage": "51.78%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 479.7,
+          "unusedKB": 231.3,
+          "unusedPercentage": "48.23%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/swiper.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/Swiper/4.1.6/js/swiper.js",
+          "totalKB": 234.5,
+          "unusedKB": 212.7,
+          "unusedPercentage": "90.70%"
+        },
+        {
+          "name": "static.hackle.io/plugin.js",
+          "url": "https://static.hackle.io/sdk/cafe24/plugin/0.0.7/plugin.js",
+          "totalKB": 406.6,
+          "unusedKB": 211.2,
+          "unusedPercentage": "51.95%"
+        },
+        {
+          "name": "www.googletagmanager.com/gtm.js",
+          "url": "https://www.googletagmanager.com/gtm.js",
+          "totalKB": 397.9,
+          "unusedKB": 206.6,
+          "unusedPercentage": "51.93%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 468.1,
+          "unusedKB": 180.6,
+          "unusedPercentage": "38.58%"
+        },
+        {
+          "name": "connect.facebook.net/fbevents.js",
+          "url": "https://connect.facebook.net/en_US/fbevents.js",
+          "totalKB": 411.7,
+          "unusedKB": 180.1,
+          "unusedPercentage": "43.74%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/in_review_common-a-69a65da99f2ab115f0e2cf8d0f8bed00.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/in_review_common-a-69a65da99f2ab115f0e2cf8d0f8bed00.js",
+          "totalKB": 176.9,
+          "unusedKB": 141.8,
+          "unusedPercentage": "80.18%"
+        },
+        {
+          "name": "connect.facebook.net/202540051730651",
+          "url": "https://connect.facebook.net/signals/config/202540051730651",
+          "totalKB": 412.6,
+          "unusedKB": 132.4,
+          "unusedPercentage": "32.08%"
+        },
+        {
+          "name": "t1.kakaocdn.net/kakao.min.js",
+          "url": "https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js",
+          "totalKB": 93.4,
+          "unusedKB": 60,
+          "unusedPercentage": "64.31%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_f_common.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_f_common.js",
+          "totalKB": 95,
+          "unusedKB": 57.7,
+          "unusedPercentage": "60.73%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/jquery-3.3.1.min.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/jquery-3.3.1.min.js",
+          "totalKB": 84.9,
+          "unusedKB": 54.6,
+          "unusedPercentage": "64.26%"
+        },
+        {
+          "name": "analytics.tiktok.com/identify_0504602d.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/static/identify_0504602d.js",
+          "totalKB": 151.9,
+          "unusedKB": 51.3,
+          "unusedPercentage": "33.75%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/select2.min.js",
+          "url": "https://cdn.snapfit.co.kr/review/js/select2.min.js",
+          "totalKB": 65.5,
+          "unusedKB": 49,
+          "unusedPercentage": "74.89%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/jquery-3.4.1.min.js",
+          "url": "https://cdn.snapfit.co.kr/review/js/jquery-3.4.1.min.js",
+          "totalKB": 86.1,
+          "unusedKB": 44.2,
+          "unusedPercentage": "51.33%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/main.js",
+          "url": "https://cdn.snapfit.co.kr/script/celladix.co.kr/main.js",
+          "totalKB": 55.7,
+          "unusedKB": 39.9,
+          "unusedPercentage": "71.63%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-core.660424bb.vendor-datadog.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core.660424bb.vendor-datadog.js",
+          "totalKB": 58,
+          "unusedKB": 34,
+          "unusedPercentage": "58.67%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/snap_combine_script_main-a-c7b6112213e7a1ffa3e336865dabf817.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/snap_combine_script_main-a-c7b6112213e7a1ffa3e336865dabf817.js",
+          "totalKB": 39.2,
+          "unusedKB": 30.4,
+          "unusedPercentage": "77.59%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/owl.carousel.min.js",
+          "url": "https://cdn.snapfit.co.kr/review/owlcarousel/owl.carousel.min.js",
+          "totalKB": 54.1,
+          "unusedKB": 26.4,
+          "unusedPercentage": "48.87%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/jquery.bxslider.min.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/bxslider/4.2.15/jquery.bxslider.min.js",
+          "totalKB": 23.7,
+          "unusedKB": 22.5,
+          "unusedPercentage": "94.79%"
+        },
+        {
+          "name": "t1.kakaocdn.net/sdk.js",
+          "url": "https://t1.kakaocdn.net/checkout/pay/sdk.js",
+          "totalKB": 30.1,
+          "unusedKB": 20.9,
+          "unusedPercentage": "69.24%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/return_push.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/return_push.js",
+          "totalKB": 14.7,
+          "unusedKB": 14.6,
+          "unusedPercentage": "99.89%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_d_common.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_d_common.js",
+          "totalKB": 20.3,
+          "unusedKB": 13,
+          "unusedPercentage": "64.18%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/push_popup.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/push_popup.js",
+          "totalKB": 6.1,
+          "unusedKB": 4.9,
+          "unusedPercentage": "80.76%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_d_banner.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_d_banner.js",
+          "totalKB": 16.9,
+          "unusedKB": 3.9,
+          "unusedPercentage": "22.80%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/basket-catch.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/basket-catch.js",
+          "totalKB": 2.6,
+          "unusedKB": 2.4,
+          "unusedPercentage": "92.84%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/snap_fit_dependent-a-782b644b2fd2d1073da3c8391b43cd16.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/snap_fit_dependent-a-782b644b2fd2d1073da3c8391b43cd16.js",
+          "totalKB": 5.5,
+          "unusedKB": 2.1,
+          "unusedPercentage": "37.55%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/frame_push.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/frame_push.js",
+          "totalKB": 2.5,
+          "unusedKB": 1.6,
+          "unusedPercentage": "65.85%"
+        },
+        {
+          "name": "analytics.tiktok.com/events.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/events.js",
+          "totalKB": 9.1,
+          "unusedKB": 0.2,
+          "unusedPercentage": "2.71%"
+        },
+        {
+          "name": "t1.kakaocdn.net/ct2.html",
+          "url": "https://t1.kakaocdn.net/kas/static/third-party/cookie/ct2.html",
+          "totalKB": 0.8,
+          "unusedKB": 0.1,
+          "unusedPercentage": "17.01%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-web.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-web.js",
+          "totalKB": 1.8,
+          "unusedKB": 0,
+          "unusedPercentage": "1.72%"
+        }
+      ]
+    },
+    "themedion": {
+      "summary": {
+        "js": {
+          "totalKB": 15436.8,
+          "unusedKB": 8836.9,
+          "unusedPercentage": "57.25%"
+        },
+        "css": {
+          "totalKB": 2529.2,
+          "unusedKB": 2436.9,
+          "unusedPercentage": "96.35%"
+        }
+      },
+      "byCategoryUnusedKB": {
+        "external_lib": 170.7,
+        "external_tracker": 4469.1,
+        "skin_custom": 843.1,
+        "cafe24_system": 2944.9,
+        "skin_user_added": 355.1,
+        "skin_uploaded": 53.1
+      },
+      "externalTrackers": [
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 599.9,
+          "unusedKB": 391.4,
+          "unusedPercentage": "65.24%"
+        },
+        {
+          "name": "sdk.bigin.io/bigin.sdk.js",
+          "url": "https://sdk.bigin.io/v1/bigin.sdk.js",
+          "totalKB": 412.2,
+          "unusedKB": 373.3,
+          "unusedPercentage": "90.58%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-core.5a1c2d7b.vendor.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core.5a1c2d7b.vendor.js",
+          "totalKB": 592.2,
+          "unusedKB": 346.6,
+          "unusedPercentage": "58.52%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 479.6,
+          "unusedKB": 344.3,
+          "unusedPercentage": "71.79%"
+        },
+        {
+          "name": "analytics.tiktok.com/main.MWU2MzIzODM0MQ.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/static/main.MWU2MzIzODM0MQ.js",
+          "totalKB": 485.2,
+          "unusedKB": 279.9,
+          "unusedPercentage": "57.68%"
+        },
+        {
+          "name": "static.hackle.io/plugin.js",
+          "url": "https://static.hackle.io/sdk/cafe24/plugin/0.0.7/plugin.js",
+          "totalKB": 406.6,
+          "unusedKB": 278.3,
+          "unusedPercentage": "68.45%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 600,
+          "unusedKB": 262.4,
+          "unusedPercentage": "43.74%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-core-20260917193237.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core-20260917193237.js",
+          "totalKB": 472.1,
+          "unusedKB": 244.7,
+          "unusedPercentage": "51.84%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 479.6,
+          "unusedKB": 222.9,
+          "unusedPercentage": "46.48%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/swiper.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/Swiper/4.1.6/js/swiper.js",
+          "totalKB": 234.5,
+          "unusedKB": 208.6,
+          "unusedPercentage": "88.94%"
+        },
+        {
+          "name": "www.googletagmanager.com/gtm.js",
+          "url": "https://www.googletagmanager.com/gtm.js",
+          "totalKB": 409.7,
+          "unusedKB": 207.2,
+          "unusedPercentage": "50.56%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 599.9,
+          "unusedKB": 191.6,
+          "unusedPercentage": "31.94%"
+        },
+        {
+          "name": "connect.facebook.net/fbevents.js",
+          "url": "https://connect.facebook.net/en_US/fbevents.js",
+          "totalKB": 411.7,
+          "unusedKB": 181.2,
+          "unusedPercentage": "44.02%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/in_review_common-a-69a65da99f2ab115f0e2cf8d0f8bed00.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/in_review_common-a-69a65da99f2ab115f0e2cf8d0f8bed00.js",
+          "totalKB": 176.9,
+          "unusedKB": 145.7,
+          "unusedPercentage": "82.39%"
+        },
+        {
+          "name": "static.hackle.io/bridge.js",
+          "url": "https://static.hackle.io/sdk/cafe24/plugin/0.0.3/bridge.js",
+          "totalKB": 271.5,
+          "unusedKB": 138.8,
+          "unusedPercentage": "51.12%"
+        },
+        {
+          "name": "connect.facebook.net/3473852802714118",
+          "url": "https://connect.facebook.net/signals/config/3473852802714118",
+          "totalKB": 264.6,
+          "unusedKB": 109,
+          "unusedPercentage": "41.18%"
+        },
+        {
+          "name": "t1.kakaocdn.net/kakao.min.js",
+          "url": "https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js",
+          "totalKB": 93.4,
+          "unusedKB": 60,
+          "unusedPercentage": "64.31%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_f_common.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_f_common.js",
+          "totalKB": 95,
+          "unusedKB": 57.7,
+          "unusedPercentage": "60.73%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/jquery-3.3.1.min.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/jquery-3.3.1.min.js",
+          "totalKB": 84.9,
+          "unusedKB": 54.6,
+          "unusedPercentage": "64.26%"
+        },
+        {
+          "name": "analytics.tiktok.com/identify_0504602d.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/static/identify_0504602d.js",
+          "totalKB": 151.9,
+          "unusedKB": 51.3,
+          "unusedPercentage": "33.75%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/select2.min.js",
+          "url": "https://cdn.snapfit.co.kr/review/js/select2.min.js",
+          "totalKB": 65.5,
+          "unusedKB": 49,
+          "unusedPercentage": "74.89%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/jquery-3.4.1.min.js",
+          "url": "https://cdn.snapfit.co.kr/review/js/jquery-3.4.1.min.js",
+          "totalKB": 86.1,
+          "unusedKB": 44.5,
+          "unusedPercentage": "51.65%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/main.js",
+          "url": "https://cdn.snapfit.co.kr/script/themedion.com/main.js",
+          "totalKB": 55.7,
+          "unusedKB": 39.9,
+          "unusedPercentage": "71.63%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-core.660424bb.vendor-datadog.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core.660424bb.vendor-datadog.js",
+          "totalKB": 58,
+          "unusedKB": 34,
+          "unusedPercentage": "58.65%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/snap_combine_script_main-a-c7b6112213e7a1ffa3e336865dabf817.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/snap_combine_script_main-a-c7b6112213e7a1ffa3e336865dabf817.js",
+          "totalKB": 39.2,
+          "unusedKB": 29.6,
+          "unusedPercentage": "75.63%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/owl.carousel.min.js",
+          "url": "https://cdn.snapfit.co.kr/review/owlcarousel/owl.carousel.min.js",
+          "totalKB": 54.1,
+          "unusedKB": 26.4,
+          "unusedPercentage": "48.87%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/jquery.bxslider.min.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/bxslider/4.2.15/jquery.bxslider.min.js",
+          "totalKB": 23.7,
+          "unusedKB": 22.5,
+          "unusedPercentage": "94.79%"
+        },
+        {
+          "name": "t1.kakaocdn.net/sdk.js",
+          "url": "https://t1.kakaocdn.net/checkout/pay/sdk.js",
+          "totalKB": 30.1,
+          "unusedKB": 15.2,
+          "unusedPercentage": "50.45%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/return_push.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/return_push.js",
+          "totalKB": 14.7,
+          "unusedKB": 14.6,
+          "unusedPercentage": "99.29%"
+        },
+        {
+          "name": "t1.kakaocdn.net/tiara.min.js",
+          "url": "https://t1.kakaocdn.net/tiara/js/v1/tiara.min.js",
+          "totalKB": 22,
+          "unusedKB": 13.1,
+          "unusedPercentage": "59.70%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_d_common.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_d_common.js",
+          "totalKB": 20.3,
+          "unusedKB": 13,
+          "unusedPercentage": "64.18%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/push_popup.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/push_popup.js",
+          "totalKB": 6.1,
+          "unusedKB": 4.9,
+          "unusedPercentage": "80.76%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_d_banner.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_d_banner.js",
+          "totalKB": 16.9,
+          "unusedKB": 3.9,
+          "unusedPercentage": "22.80%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/snap_fit_independent-a-c88682e709e4cd27676ba84c02631e5a.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/snap_fit_independent-a-c88682e709e4cd27676ba84c02631e5a.js",
+          "totalKB": 6.6,
+          "unusedKB": 2.9,
+          "unusedPercentage": "43.89%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/basket-catch.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/basket-catch.js",
+          "totalKB": 2.6,
+          "unusedKB": 2.4,
+          "unusedPercentage": "91.00%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/snap_fit_dependent-a-782b644b2fd2d1073da3c8391b43cd16.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/snap_fit_dependent-a-782b644b2fd2d1073da3c8391b43cd16.js",
+          "totalKB": 5.5,
+          "unusedKB": 1.8,
+          "unusedPercentage": "33.40%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/frame_push.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/frame_push.js",
+          "totalKB": 2.5,
+          "unusedKB": 1.6,
+          "unusedPercentage": "65.85%"
+        },
+        {
+          "name": "analytics.tiktok.com/events.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/events.js",
+          "totalKB": 8.9,
+          "unusedKB": 0.2,
+          "unusedPercentage": "2.78%"
+        },
+        {
+          "name": "t1.kakaocdn.net/ct2.html",
+          "url": "https://t1.kakaocdn.net/kas/static/third-party/cookie/ct2.html",
+          "totalKB": 0.8,
+          "unusedKB": 0.1,
+          "unusedPercentage": "17.01%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-web.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-web.js",
+          "totalKB": 1.8,
+          "unusedKB": 0,
+          "unusedPercentage": "1.72%"
+        }
+      ]
+    },
+    "wellit": {
+      "summary": {
+        "js": {
+          "totalKB": 14154,
+          "unusedKB": 7812.1,
+          "unusedPercentage": "55.19%"
+        },
+        "css": {
+          "totalKB": 1043.2,
+          "unusedKB": 1004.8,
+          "unusedPercentage": "96.32%"
+        }
+      },
+      "byCategoryUnusedKB": {
+        "external_lib": 374.1,
+        "skin_custom": 639.6,
+        "external_tracker": 3528.7,
+        "cafe24_system": 2774.8,
+        "skin_user_added": 494.4
+      },
+      "externalTrackers": [
+        {
+          "name": "cdn.channel.io/ch-plugin-core.5a1c2d7b.vendor.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core.5a1c2d7b.vendor.js",
+          "totalKB": 592.2,
+          "unusedKB": 342.6,
+          "unusedPercentage": "57.85%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 588.3,
+          "unusedKB": 281.3,
+          "unusedPercentage": "47.82%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 588.4,
+          "unusedKB": 280,
+          "unusedPercentage": "47.58%"
+        },
+        {
+          "name": "analytics.tiktok.com/main.MWU2MzIzODM0OQ.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/static/main.MWU2MzIzODM0OQ.js",
+          "totalKB": 525,
+          "unusedKB": 275.8,
+          "unusedPercentage": "52.53%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 511.2,
+          "unusedKB": 263.5,
+          "unusedPercentage": "51.55%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 472.4,
+          "unusedKB": 237.6,
+          "unusedPercentage": "50.30%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 472.4,
+          "unusedKB": 236.9,
+          "unusedPercentage": "50.14%"
+        },
+        {
+          "name": "www.googletagmanager.com/js",
+          "url": "https://www.googletagmanager.com/gtag/js",
+          "totalKB": 468.1,
+          "unusedKB": 233.3,
+          "unusedPercentage": "49.85%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-core-20260917193237.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core-20260917193237.js",
+          "totalKB": 472.1,
+          "unusedKB": 232.9,
+          "unusedPercentage": "49.33%"
+        },
+        {
+          "name": "www.googletagmanager.com/gtm.js",
+          "url": "https://www.googletagmanager.com/gtm.js",
+          "totalKB": 429,
+          "unusedKB": 230.4,
+          "unusedPercentage": "53.71%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/swiper.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/Swiper/4.1.6/js/swiper.js",
+          "totalKB": 234.5,
+          "unusedKB": 208.6,
+          "unusedPercentage": "88.94%"
+        },
+        {
+          "name": "connect.facebook.net/fbevents.js",
+          "url": "https://connect.facebook.net/en_US/fbevents.js",
+          "totalKB": 411.7,
+          "unusedKB": 186.6,
+          "unusedPercentage": "45.32%"
+        },
+        {
+          "name": "connect.facebook.net/172146408684639",
+          "url": "https://connect.facebook.net/signals/config/172146408684639",
+          "totalKB": 274.8,
+          "unusedKB": 118.8,
+          "unusedPercentage": "43.25%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_f_common.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_f_common.js",
+          "totalKB": 95,
+          "unusedKB": 84.4,
+          "unusedPercentage": "88.88%"
+        },
+        {
+          "name": "t1.kakaocdn.net/kakao.min.js",
+          "url": "https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js",
+          "totalKB": 93.4,
+          "unusedKB": 60,
+          "unusedPercentage": "64.31%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/jquery-3.3.1.min.js",
+          "url": "https://cdn.snapfit.co.kr/push/js/jquery-3.3.1.min.js",
+          "totalKB": 84.9,
+          "unusedKB": 54.6,
+          "unusedPercentage": "64.26%"
+        },
+        {
+          "name": "analytics.tiktok.com/identify_0504602d.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/static/identify_0504602d.js",
+          "totalKB": 151.9,
+          "unusedKB": 51.3,
+          "unusedPercentage": "33.75%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/main.js",
+          "url": "https://cdn.snapfit.co.kr/script/wellit.co.kr/main.js",
+          "totalKB": 55.7,
+          "unusedKB": 39.9,
+          "unusedPercentage": "71.63%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/snap_combine_script_main-a-c7b6112213e7a1ffa3e336865dabf817.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/snap_combine_script_main-a-c7b6112213e7a1ffa3e336865dabf817.js",
+          "totalKB": 39.2,
+          "unusedKB": 33.3,
+          "unusedPercentage": "84.88%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-core.660424bb.vendor-datadog.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-core.660424bb.vendor-datadog.js",
+          "totalKB": 58,
+          "unusedKB": 29,
+          "unusedPercentage": "49.93%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/return_push.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/return_push.js",
+          "totalKB": 14.7,
+          "unusedKB": 14.6,
+          "unusedPercentage": "99.29%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_d_common.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_d_common.js",
+          "totalKB": 20.3,
+          "unusedKB": 13.7,
+          "unusedPercentage": "67.75%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/push_popup.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/push_popup.js",
+          "totalKB": 6.1,
+          "unusedKB": 5.4,
+          "unusedPercentage": "87.53%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/snap_fit_independent-a-c88682e709e4cd27676ba84c02631e5a.js",
+          "url": "https://cdn.snapfit.co.kr/builds/review_front/js/snap_fit_independent-a-c88682e709e4cd27676ba84c02631e5a.js",
+          "totalKB": 6.6,
+          "unusedKB": 4.9,
+          "unusedPercentage": "73.08%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/spm_d_banner.js",
+          "url": "https://cdn.snapfit.co.kr/js/spm_d_banner.js",
+          "totalKB": 16.9,
+          "unusedKB": 4.7,
+          "unusedPercentage": "27.99%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/basket-catch.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/basket-catch.js",
+          "totalKB": 2.6,
+          "unusedKB": 2.4,
+          "unusedPercentage": "91.00%"
+        },
+        {
+          "name": "cdn.snapfit.co.kr/frame_push.js",
+          "url": "https://cdn.snapfit.co.kr/js/push/frame_push.js",
+          "totalKB": 2.5,
+          "unusedKB": 1.9,
+          "unusedPercentage": "77.53%"
+        },
+        {
+          "name": "analytics.tiktok.com/events.js",
+          "url": "https://analytics.tiktok.com/i18n/pixel/events.js",
+          "totalKB": 9.3,
+          "unusedKB": 0.2,
+          "unusedPercentage": "2.65%"
+        },
+        {
+          "name": "t1.kakaocdn.net/ct2.html",
+          "url": "https://t1.kakaocdn.net/kas/static/third-party/cookie/ct2.html",
+          "totalKB": 0.8,
+          "unusedKB": 0.1,
+          "unusedPercentage": "17.01%"
+        },
+        {
+          "name": "cdn.channel.io/ch-plugin-web.js",
+          "url": "https://cdn.channel.io/plugin/ch-plugin-web.js",
+          "totalKB": 1.8,
+          "unusedKB": 0,
+          "unusedPercentage": "1.72%"
+        }
+      ]
+    }
+  }
+}
